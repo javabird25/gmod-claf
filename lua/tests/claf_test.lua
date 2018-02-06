@@ -377,6 +377,114 @@ local tests = {
         assertNil(max)
     end,
 
+    --- Object oriented programming ---
+
+    function()
+        print 'Object creation & structure...'
+
+        local cls = class {
+            foo = 1,
+            bar = 3
+        }
+
+        local obj = cls()
+
+        assert(obj.foo == 1)
+        assert(obj.bar == 3)
+    end,
+    function()
+        print 'Object field edit...'
+
+        local cls = class {
+            foo = 1,
+            bar = 3
+        }
+
+        local obj = cls()
+        obj.foo = 4
+
+        assert(obj.foo == 4)
+        assert(obj.bar == 3)
+    end,
+    function()
+        print 'Constructor...'
+
+        local cls = class {
+            foo = 1,
+            bar = 3,
+            __init = function()
+                self.foo = 2
+            end
+        }
+
+        local obj = cls()
+
+        assert(obj.foo == 2)
+        assert(obj.bar == 3)
+    end,
+    function()
+        print 'Class inheritance (without constructor)...'
+
+        local base = class {
+            foo = 1,
+            bar = 2
+        }
+
+        local derived = class({
+            foo = 5,
+            boo = 6
+        }, base)
+
+        local obj = derived()
+
+        assert(obj.foo == 5)
+        assert(obj.bar == 2)
+        assert(obj.boo == 6)
+    end,
+    function()
+        print 'Class inheritance (with constructor, no call to super)...'
+
+        local buffer = ''
+
+        local base = class {
+            __init = function()
+                buffer = buffer + 'a'
+            end
+        }
+
+        local derived = class({
+            __init = function()
+                buffer = buffer + 'b'
+            end
+        }, base)
+
+        local obj = derived()
+
+        assert(buffer == 'b')
+    end,
+    function()
+        print 'Class inheritance (with constructor, call to super)...' 
+
+        local buffer = ''
+
+        local base = class {
+            __init = function()
+                buffer = buffer + 'a'
+            end
+        }
+
+        local derived = class({
+            __init = function()
+                self.__super:__init()
+                buffer = buffer + 'b'
+            end
+        }, base)
+
+        local obj = derived()
+
+        assert(buffer == 'b')
+    end,
+
     --- Tests success ---
 
     function()
