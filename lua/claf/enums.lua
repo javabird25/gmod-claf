@@ -52,3 +52,6 @@ function Flags(constants)
 
     return flagSet
 end
+
+Combine = bit.bor
+Extract = bit.band
