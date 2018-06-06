@@ -81,3 +81,20 @@ end
 function IsOdd(x)
     return x % 2 != 0
 end
+
+function repr(str)
+    if not isstring(str) then return str end  -- Leaving numbers as is
+    
+    return string.format("%q", str):gsub("\\\n", "\\n")
+end
+
+--
+function lambda(code, args)
+    code = 'return '..code
+    local iOfNextArgToReplace = 1
+    while string.find(code, '^') ~= nil do
+        code = string.gsub(code, '^', repr(args[1]), 1)
+    end
+    local func = CompileString('return '..code)
+    return func
+end
