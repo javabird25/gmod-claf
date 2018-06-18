@@ -407,17 +407,33 @@ local tests = {
         assert(obj.bar == 3)
     end,
     function()
-        print 'Constructor...'
+        print 'Constructor without parameters...'
 
         local cls = class {
             foo = 1,
-            bar = 3,
-            __init = function()
-                self.foo = 2
-            end
+            bar = 3
         }
+        function cls:__init()
+            self.foo = 2
+        end
 
         local obj = cls()
+
+        assert(obj.foo == 2)
+        assert(obj.bar == 3)
+    end,
+    function()
+        print 'Constructor with parameters...'
+
+        local cls = class {
+            foo = 1,
+            bar = 3
+        }
+        function cls:__init(a)
+            self.foo = a
+        end
+
+        local obj = cls(2)
 
         assert(obj.foo == 2)
         assert(obj.bar == 3)
@@ -446,43 +462,80 @@ local tests = {
 
         local buffer = ''
 
-        local base = class {
-            __init = function()
-                buffer = buffer + 'a'
-            end
-        }
+        local base = class{}
+        function base:__init()
+            buffer = buffer..'a'
+        end
 
-        local derived = class({
-            __init = function()
-                buffer = buffer + 'b'
-            end
-        }, base)
+        local derived = class({}, base)
+        function derived:__init()
+            buffer = buffer..'b'
+        end
 
         local obj = derived()
 
         assert(buffer == 'b')
     end,
     function()
-        print 'Class inheritance (with constructor, call to super)...' 
+        print 'Class inheritance (with constructor, call to super)...'
 
         local buffer = ''
 
-        local base = class {
-            __init = function()
-                buffer = buffer + 'a'
-            end
-        }
+        local base = class{}
+        function base:__init()
+            buffer = buffer..'a'
+        end
 
-        local derived = class({
-            __init = function()
-                self.__super:__init()
-                buffer = buffer + 'b'
-            end
-        }, base)
+        local derived = class({}, base)
+        function derived:__init()
+            self.__super:__init()
+            buffer = buffer..'b'
+        end
 
         local obj = derived()
 
-        assert(buffer == 'b')
+        assert(buffer == 'ab')
+    end,
+    function()
+        print 'isclass()...'
+
+        local cls = class {
+            foo = 1,
+            bar = 3
+        }
+
+        assert(isclass(cls))
+    end,
+    function()
+        print 'isobject()...'
+
+        local cls = class {
+            foo = 1,
+            bar = 3
+        }
+
+        local obj = cls()
+
+        assert(isobject(obj))
+    end,
+    function()
+        print 'Operator overloading...'
+
+        local str
+        local cls = class {}
+        function cls:__init(val) self.val = val end
+        function cls:__add(a, b)
+            str = a.val..b.val
+            print(a.val)
+            print(b.val)
+        end
+        finishclass(cls)
+        local obj1 = cls(1)
+        local obj2 = cls(2)
+        local x = obj1 + obj2
+
+        print(str)
+        assert(str == '12')
     end,
 
     --- Tests success ---
